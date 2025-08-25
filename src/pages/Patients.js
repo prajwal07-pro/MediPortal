@@ -21,8 +21,12 @@ export default function Patients() {
   }
 
   useEffect(() => {
-    load();
-  }, [search]);
+  const load = () => {
+    // Move your load function code here
+  };
+  load();
+}, []);
+
 
   async function handleDelete(id) {
     if (!window.confirm("Delete this patient?")) return;

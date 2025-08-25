@@ -40,8 +40,13 @@ export default function Appointments() {
   }
 
   useEffect(() => {
-    load();
-  }, [date]);
+  const load = () => {
+    // Move your load function code here
+  };
+  load();
+}, []);
+
+
 
   async function setStatus(id, status) {
     await updateAppointment(id, { status });

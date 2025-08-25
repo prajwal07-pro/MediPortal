@@ -27,8 +27,12 @@ export default function Payments() {
   }
 
   useEffect(() => {
-    load();
-  }, [patientId]);
+  const load = () => {
+    // Move your load function code here
+  };
+  load();
+}, []);
+
 
   function goNew() {
     const qs = patientId ? `?patientId=${encodeURIComponent(patientId)}` : "";
