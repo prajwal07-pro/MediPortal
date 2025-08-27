@@ -2,7 +2,7 @@
 import React, { useMemo, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { createAppointment, isSlotAvailable } from "../services/appointmentService";
-import "./AppointmentNew.css"; // Import the CSS file
+import "./AppointmentNew.css";
 
 export default function AppointmentNew() {
   const location = useLocation();
@@ -11,14 +11,12 @@ export default function AppointmentNew() {
   const initialDate = params.get("date") || new Date().toISOString().slice(0, 10);
   const initialName = params.get("patientName") || "";
   const initialPhone = params.get("phone") || "";
-  const initialEmail = params.get("email") || "";
 
   const [form, setForm] = useState({
     date: initialDate,
     time: "",
     patientName: initialName,
     phone: initialPhone,
-    email: initialEmail,
     reason: "",
     status: "pending",
   });
@@ -36,20 +34,38 @@ export default function AppointmentNew() {
     e.preventDefault();
     setSaving(true);
     setError("");
+
     try {
-      if (!form.date || !form.time) {
-        setError("Please select both date and time.");
+      // Validate required fields
+      if (!form.date) {
+        setError("Date is required.");
         setSaving(false);
         return;
       }
+      if (!form.time) {
+        setError("Time is required.");
+        setSaving(false);
+        return;
+      }
+      if (!form.patientName.trim()) {
+        setError("Patient name is required.");
+        setSaving(false);
+        return;
+      }
+      if (!form.reason.trim()) {
+        setError("Reason is required.");
+        setSaving(false);
+        return;
+      }
+
       const free = await isSlotAvailable(form.date, form.time);
       if (!free) {
         setError("This time slot is already taken. Choose a different time.");
         setSaving(false);
         return;
       }
+
       await createAppointment(form);
-      // Return to list with the same date so the new item is visible
       navigate(`/appointments?date=${encodeURIComponent(form.date)}`);
     } catch (err) {
       console.error(err);
@@ -61,16 +77,20 @@ export default function AppointmentNew() {
 
   return (
     <div className="appointment-new-container">
+      {/* Back Navigation */}
+      <div className="back-navigation">
+        <button onClick={() => navigate("/appointments")} className="back-btn-dashboard">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M19 12H5"/>
+            <polyline points="12,19 5,12 12,5"/>
+          </svg>
+          <span>Back to Appointments</span>
+        </button>
+      </div>
+
       {/* Header */}
       <div className="page-header">
         <div className="header-content">
-          <button onClick={() => navigate(-1)} className="back-btn">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M19 12H5"/>
-              <polyline points="12,19 5,12 12,5"/>
-            </svg>
-            Back
-          </button>
           <div className="page-title-section">
             <div className="page-icon">
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -99,7 +119,6 @@ export default function AppointmentNew() {
             </div>
           )}
 
-          {/* Form Grid */}
           <div className="form-grid">
             <div className="form-group">
               <label className="form-label">
@@ -163,7 +182,7 @@ export default function AppointmentNew() {
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
                 </svg>
-                Phone
+                Phone (Optional)
               </label>
               <input
                 type="tel"
@@ -175,52 +194,32 @@ export default function AppointmentNew() {
               />
             </div>
 
-            <div className="form-group">
+            <div className="form-group full-width">
               <label className="form-label">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
-                  <polyline points="22,6 12,13 2,6"/>
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                  <polyline points="14,2 14,8 20,8"/>
+                  <line x1="16" y1="13" x2="8" y2="13"/>
+                  <line x1="16" y1="17" x2="8" y2="17"/>
                 </svg>
-                Email
+                Reason *
               </label>
-              <input
-                type="email"
-                name="email"
-                value={form.email}
+              <textarea
+                name="reason"
+                value={form.reason}
                 onChange={onChange}
-                className="form-input"
-                placeholder="Enter email address"
+                className="form-textarea"
+                rows={4}
+                placeholder="Enter reason for appointment"
+                required
               />
             </div>
           </div>
 
-          {/* Reason Text Area */}
-          <div className="form-group full-width">
-            <label className="form-label">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-                <polyline points="14,2 14,8 20,8"/>
-                <line x1="16" y1="13" x2="8" y2="13"/>
-                <line x1="16" y1="17" x2="8" y2="17"/>
-                <polyline points="10,9 9,9 8,9"/>
-              </svg>
-              Reason for Visit
-            </label>
-            <textarea
-              name="reason"
-              value={form.reason}
-              onChange={onChange}
-              className="form-textarea"
-              rows={4}
-              placeholder="Describe the reason for this appointment..."
-            />
-          </div>
-
-          {/* Action Buttons */}
           <div className="form-actions">
             <button
               type="button"
-              onClick={() => navigate(-1)}
+              onClick={() => navigate("/appointments")}
               className="cancel-btn"
               disabled={saving}
             >
@@ -243,7 +242,7 @@ export default function AppointmentNew() {
                     <line x1="4.93" y1="19.07" x2="7.76" y2="16.24"/>
                     <line x1="16.24" y1="7.76" x2="19.07" y2="4.93"/>
                   </svg>
-                  Saving...
+                  Creating...
                 </>
               ) : (
                 <>

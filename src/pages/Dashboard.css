@@ -66,27 +66,62 @@
 .brand-section {
   display: flex;
   align-items: center;
-  gap: 1rem;
+  gap: 1.25rem;
 }
 
-.brand-icon {
-  width: 52px;
-  height: 52px;
-  background: linear-gradient(135deg, var(--medical-primary), var(--medical-trust));
-  border-radius: 16px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: white;
+/* Doctor Photo */
+.doctor-photo {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 3px solid var(--medical-primary);
   box-shadow: var(--medical-shadow-soft);
 }
 
-.brand-title {
+.doctor-photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+
+/* Doctor Details */
+.doctor-details {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.doctor-name {
   font-size: 1.875rem;
   font-weight: 700;
   color: var(--medical-text-primary);
   margin: 0;
   letter-spacing: -0.025em;
+}
+
+.clinic-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.clinic-location,
+.doctor-contact {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--medical-text-secondary);
+}
+
+.clinic-location svg,
+.doctor-contact svg {
+  width: 16px;
+  height: 16px;
+  color: var(--medical-primary);
 }
 
 .user-section {
@@ -372,6 +407,25 @@
     gap: 1rem;
   }
 
+  .brand-section {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .doctor-photo {
+    width: 50px;
+    height: 50px;
+  }
+
+  .doctor-name {
+    font-size: 1.5rem;
+  }
+
+  .clinic-info {
+    align-items: center;
+    text-align: center;
+  }
+
   .user-section {
     width: 100%;
     justify-content: space-between;
@@ -395,16 +449,22 @@
     gap: 1.25rem;
   }
 
-  .brand-title {
-    font-size: 1.625rem;
-  }
-
   .section-title {
     font-size: 1.5rem;
   }
 }
 
 @media (max-width: 480px) {
+  .brand-section {
+    flex-direction: column;
+    gap: 0.75rem;
+    text-align: center;
+  }
+
+  .doctor-details {
+    align-items: center;
+  }
+
   .nav-card {
     flex-direction: column;
     text-align: center;
@@ -417,5 +477,18 @@
 
   .welcome-card {
     padding: 2rem 1.5rem;
+  }
+
+  .doctor-name {
+    font-size: 1.375rem;
+  }
+
+  .clinic-info {
+    gap: 0.5rem;
+  }
+
+  .clinic-location,
+  .doctor-contact {
+    font-size: 0.8rem;
   }
 }

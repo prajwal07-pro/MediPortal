@@ -2,7 +2,7 @@
 import React, { useState } from "react";
 import { createPatient } from "../services/patientService";
 import { useNavigate } from "react-router-dom";
-import "./PatientNew.css"; // Import the CSS file
+import "./PatientNew.css";
 
 export default function PatientNew() {
   const [form, setForm] = useState({
@@ -10,10 +10,6 @@ export default function PatientNew() {
     age: "",
     gender: "",
     phone: "",
-    email: "",
-    address: "",
-    allergies: "",
-    medicalHistory: "",
   });
 
   const [saving, setSaving] = useState(false);
@@ -29,16 +25,30 @@ export default function PatientNew() {
     e.preventDefault();
     setSaving(true);
     setError("");
+
     try {
+      // Validate required fields
       if (!form.name.trim()) {
         setError("Patient name is required.");
         setSaving(false);
         return;
       }
+      if (!form.age || Number(form.age) <= 0) {
+        setError("Age is required and must be greater than 0.");
+        setSaving(false);
+        return;
+      }
+      if (!form.gender) {
+        setError("Gender is required.");
+        setSaving(false);
+        return;
+      }
+
       const payload = {
         ...form,
-        age: form.age ? Number(form.age) : null,
+        age: Number(form.age),
       };
+      
       const ref = await createPatient(payload);
       navigate(`/patients/${ref.id}`);
     } catch (err) {
@@ -119,7 +129,7 @@ export default function PatientNew() {
                   <line x1="8" y1="2" x2="8" y2="6"/>
                   <line x1="3" y1="10" x2="21" y2="10"/>
                 </svg>
-                Age
+                Age *
               </label>
               <input
                 type="number"
@@ -128,8 +138,9 @@ export default function PatientNew() {
                 onChange={onChange}
                 className="form-input"
                 placeholder="Enter age"
-                min="0"
+                min="1"
                 max="150"
+                required
               />
             </div>
 
@@ -140,13 +151,14 @@ export default function PatientNew() {
                   <circle cx="20" cy="21" r="1"/>
                   <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
                 </svg>
-                Gender
+                Gender *
               </label>
               <select
                 name="gender"
                 value={form.gender}
                 onChange={onChange}
                 className="form-input"
+                required
               >
                 <option value="">Select Gender</option>
                 <option value="Male">Male</option>
@@ -160,7 +172,7 @@ export default function PatientNew() {
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
                 </svg>
-                Phone
+                Phone (Optional)
               </label>
               <input
                 type="tel"
@@ -169,81 +181,6 @@ export default function PatientNew() {
                 onChange={onChange}
                 className="form-input"
                 placeholder="Enter phone number"
-              />
-            </div>
-
-            <div className="form-group">
-              <label className="form-label">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
-                  <polyline points="22,6 12,13 2,6"/>
-                </svg>
-                Email
-              </label>
-              <input
-                type="email"
-                name="email"
-                value={form.email}
-                onChange={onChange}
-                className="form-input"
-                placeholder="Enter email address"
-              />
-            </div>
-
-            <div className="form-group full-width">
-              <label className="form-label">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
-                  <circle cx="12" cy="10" r="3"/>
-                </svg>
-                Address
-              </label>
-              <textarea
-                name="address"
-                value={form.address}
-                onChange={onChange}
-                className="form-textarea"
-                rows={3}
-                placeholder="Enter address"
-              />
-            </div>
-
-            <div className="form-group full-width">
-              <label className="form-label">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M12 2L2 7l10 5 10-5-10-5z"/>
-                  <path d="M2 17l10 5 10-5"/>
-                  <path d="M2 12l10 5 10-5"/>
-                </svg>
-                Allergies
-              </label>
-              <textarea
-                name="allergies"
-                value={form.allergies}
-                onChange={onChange}
-                className="form-textarea"
-                rows={3}
-                placeholder="List any known allergies"
-              />
-            </div>
-
-            <div className="form-group full-width">
-              <label className="form-label">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-                  <polyline points="14,2 14,8 20,8"/>
-                  <line x1="16" y1="13" x2="8" y2="13"/>
-                  <line x1="16" y1="17" x2="8" y2="17"/>
-                </svg>
-                Medical History
-              </label>
-              <textarea
-                name="medicalHistory"
-                value={form.medicalHistory}
-                onChange={onChange}
-                className="form-textarea"
-                rows={4}
-                placeholder="Enter relevant medical history"
               />
             </div>
           </div>

@@ -20,19 +20,18 @@ export default function Payments() {
     setLoading(true);
     try {
       const data = await listPayments({ patientId: patientId || undefined });
-      setItems(data);
+      setItems(data || []);
+    } catch (error) {
+      console.error("Error loading payments:", error);
+      setItems([]);
     } finally {
       setLoading(false);
     }
   }
 
   useEffect(() => {
-  const load = () => {
-    // Move your load function code here
-  };
-  load();
-}, []);
-
+    load();
+  }, [patientId]); // Fixed: proper dependency array
 
   function goNew() {
     const qs = patientId ? `?patientId=${encodeURIComponent(patientId)}` : "";
@@ -41,8 +40,12 @@ export default function Payments() {
 
   async function onDelete(id) {
     if (!window.confirm("Delete this payment?")) return;
-    await deletePayment(id);
-    load();
+    try {
+      await deletePayment(id);
+      load();
+    } catch (error) {
+      console.error("Error deleting payment:", error);
+    }
   }
 
   function getStatusClass(status) {
@@ -93,117 +96,6 @@ export default function Payments() {
           {loading ? "Loading..." : `${items.length} payments`}
         </div>
         
-        {/* Mobile Card View */}
-        <div className="mobile-view">
-          {!loading && items.length === 0 && (
-            <div className="empty-state">
-              <p>No payments found</p>
-              <button onClick={goNew} className="pillBtn create-btn">
-                Record one
-              </button>
-            </div>
-          )}
-          {items.map((p) => (
-            <div key={p.id} className="mobile-card">
-              <div className="card-header">
-                <div className="payment-info">
-                  <div className="amount">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <line x1="12" y1="1" x2="12" y2="23"/>
-                      <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
-                    </svg>
-                    ₹ {Number(p.amount || 0).toFixed(2)}
-                  </div>
-                  <span className={`statusPill ${getStatusClass(p.status || "received")}`}>
-                    {p.status || "received"}
-                  </span>
-                </div>
-              </div>
-              
-              <div className="payment-details">
-                <div className="detail-row">
-                  <span className="label">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-                      <circle cx="12" cy="7" r="4"/>
-                    </svg>
-                    Patient:
-                  </span>
-                  <span className="value">{p.patientName || p.patientId || "-"}</span>
-                </div>
-                
-                <div className="detail-row">
-                  <span className="label">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
-                      <line x1="16" y1="2" x2="16" y2="6"/>
-                      <line x1="8" y1="2" x2="8" y2="6"/>
-                      <line x1="3" y1="10" x2="21" y2="10"/>
-                    </svg>
-                    Date:
-                  </span>
-                  <span className="value">
-                    {p.createdAt?.toDate ? p.createdAt.toDate().toLocaleDateString() : "-"}
-                  </span>
-                </div>
-                
-                <div className="detail-row">
-                  <span className="label">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <rect x="1" y="4" width="22" height="16" rx="2" ry="2"/>
-                      <line x1="1" y1="10" x2="23" y2="10"/>
-                    </svg>
-                    Method:
-                  </span>
-                  <span className="value">{p.method?.toUpperCase() || "-"}</span>
-                </div>
-                
-                {p.notes && (
-                  <div className="detail-row">
-                    <span className="label">
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-                        <polyline points="14,2 14,8 20,8"/>
-                        <line x1="16" y1="13" x2="8" y2="13"/>
-                        <line x1="16" y1="17" x2="8" y2="17"/>
-                      </svg>
-                      Notes:
-                    </span>
-                    <span className="value">{p.notes}</span>
-                  </div>
-                )}
-              </div>
-              
-              <div className="card-actions">
-                <button onClick={() => navigate(`/payments/${p.id}`)} className="action-btn view">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
-                    <circle cx="12" cy="12" r="3"/>
-                  </svg>
-                  View
-                </button>
-                <button onClick={() => navigate(`/payments/${p.id}/edit`)} className="action-btn edit">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
-                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
-                  </svg>
-                  Edit
-                </button>
-                <button onClick={() => onDelete(p.id)} className="action-btn delete">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <polyline points="3,6 5,6 21,6"/>
-                    <path d="M19,6v14a2,2,0,0,1-2,2H7a2,2,0,0,1-2-2V6m3,0V4a2,2,0,0,1,2-2h4a2,2,0,0,1,2,2V6"/>
-                    <line x1="10" y1="11" x2="10" y2="17"/>
-                    <line x1="14" y1="11" x2="14" y2="17"/>
-                  </svg>
-                  Delete
-                </button>
-              </div>
-            </div>
-          ))}
-        </div>
-
-        {/* Desktop Table View */}
         <div className="table-wrapper">
           <table>
             <thead>

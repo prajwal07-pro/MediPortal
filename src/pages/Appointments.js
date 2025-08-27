@@ -21,6 +21,7 @@ export default function Appointments() {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  // Keep ?date in URL synced for refresh/back
   useEffect(() => {
     const sp = new URLSearchParams(location.search);
     if (sp.get("date") !== date) {
@@ -33,30 +34,36 @@ export default function Appointments() {
     setLoading(true);
     try {
       const data = await listAppointments({ date });
-      setItems(data);
+      setItems(data || []);
+    } catch (error) {
+      console.error("Error loading appointments:", error);
+      setItems([]);
     } finally {
       setLoading(false);
     }
   }
 
   useEffect(() => {
-  const load = () => {
-    // Move your load function code here
-  };
-  load();
-}, []);
-
-
+    load();
+  }, [date]); // Fixed: proper dependency array
 
   async function setStatus(id, status) {
-    await updateAppointment(id, { status });
-    load();
+    try {
+      await updateAppointment(id, { status });
+      load();
+    } catch (error) {
+      console.error("Error updating appointment:", error);
+    }
   }
 
   async function handleDelete(id) {
     if (!window.confirm("Delete this appointment?")) return;
-    await deleteAppointment(id);
-    load();
+    try {
+      await deleteAppointment(id);
+      load();
+    } catch (error) {
+      console.error("Error deleting appointment:", error);
+    }
   }
 
   function getStatusClass(status) {
@@ -71,6 +78,7 @@ export default function Appointments() {
 
   return (
     <div className="page">
+      {/* Back Navigation */}
       <div className="back-navigation">
         <button onClick={() => navigate("/")} className="back-btn-dashboard">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -81,6 +89,7 @@ export default function Appointments() {
         </button>
       </div>
 
+      {/* Header Section */}
       <header className="header">
         <h2 className="title">Appointments</h2>
         <div>
@@ -103,102 +112,10 @@ export default function Appointments() {
         </div>
       </header>
 
+      {/* Main Content Card */}
       <section className="card">
         <div>
           {loading ? "Loading..." : `${items.length} appointments`}
-        </div>
-        
-        {/* Mobile Card View */}
-        <div className="mobile-view">
-          {!loading && items.length === 0 && (
-            <div className="empty-state">
-              <p>No appointments for this date</p>
-              <button
-                onClick={() => navigate(`/appointments/new?date=${date}`)}
-                className="pillBtn create-btn"
-              >
-                Create one
-              </button>
-            </div>
-          )}
-          {items.map((a) => (
-            <div key={a.id} className="mobile-card">
-              <div className="card-header">
-                <div className="time-patient">
-                  <span className="time">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <circle cx="12" cy="12" r="10"/>
-                      <polyline points="12,6 12,12 16,14"/>
-                    </svg>
-                    {a.time || "-"}
-                  </span>
-                  <span className="patient-name">{a.patientName || a.patientId || "-"}</span>
-                </div>
-                <span className={`statusPill ${getStatusClass(a.status || "pending")}`}>
-                  {a.status || "pending"}
-                </span>
-              </div>
-              
-              {(a.phone || a.email) && (
-                <div className="contact-info">
-                  {a.phone && (
-                    <span className="contact-item">
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                        <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
-                      </svg>
-                      {a.phone}
-                    </span>
-                  )}
-                  {a.email && (
-                    <span className="contact-item">
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                        <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
-                        <polyline points="22,6 12,13 2,6"/>
-                      </svg>
-                      {a.email}
-                    </span>
-                  )}
-                </div>
-              )}
-              
-              {a.reason && (
-                <div className="reason">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-                    <polyline points="14,2 14,8 20,8"/>
-                    <line x1="16" y1="13" x2="8" y2="13"/>
-                    <line x1="16" y1="17" x2="8" y2="17"/>
-                  </svg>
-                  {a.reason}
-                </div>
-              )}
-              
-              <div className="card-actions">
-                <button onClick={() => setStatus(a.id, "confirmed")} className="action-btn confirm">
-                  Confirm
-                </button>
-                <button onClick={() => setStatus(a.id, "completed")} className="action-btn complete">
-                  Complete
-                </button>
-                <button onClick={() => setStatus(a.id, "cancelled")} className="action-btn cancel">
-                  Cancel
-                </button>
-                <button onClick={() => handleDelete(a.id)} className="action-btn delete">
-                  Delete
-                </button>
-                <button
-                  onClick={() =>
-                    navigate(
-                      `/payments/new?patientName=${encodeURIComponent(a.patientName || "")}&appointmentId=${encodeURIComponent(a.id)}`
-                    )
-                  }
-                  className="action-btn payment"
-                >
-                  Payment
-                </button>
-              </div>
-            </div>
-          ))}
         </div>
 
         {/* Desktop Table View */}

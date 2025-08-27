@@ -2,7 +2,7 @@
 import React, { useMemo, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { createPayment } from "../services/paymentService";
-import "./PaymentNew.css"; // Import the CSS file
+import "./PaymentNew.css";
 
 const METHODS = ["cash", "card", "upi", "online", "insurance"];
 const STATUSES = ["received", "pending", "refunded"];
@@ -18,7 +18,6 @@ export default function PaymentNew() {
     amount: "",
     method: "cash",
     status: "received",
-    notes: "",
   });
 
   const [saving, setSaving] = useState(false);
@@ -34,17 +33,35 @@ export default function PaymentNew() {
     e.preventDefault();
     setSaving(true);
     setError("");
+
     try {
+      // Validate required fields
       if (!form.patientId && !form.patientName) {
-        setError("Provide patient ID or patient name.");
+        setError("Patient ID or Patient Name is required.");
+        setSaving(false);
+        return;
+      }
+      if (!form.appointmentId.trim()) {
+        setError("Appointment ID is required.");
         setSaving(false);
         return;
       }
       if (!form.amount || Number(form.amount) <= 0) {
-        setError("Enter a valid amount greater than 0.");
+        setError("Amount is required and must be greater than 0.");
         setSaving(false);
         return;
       }
+      if (!form.method) {
+        setError("Payment method is required.");
+        setSaving(false);
+        return;
+      }
+      if (!form.status) {
+        setError("Payment status is required.");
+        setSaving(false);
+        return;
+      }
+
       await createPayment(form);
       navigate("/payments");
     } catch (err) {
@@ -104,7 +121,7 @@ export default function PaymentNew() {
                   <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/>
                   <rect x="8" y="2" width="8" height="4" rx="1" ry="1"/>
                 </svg>
-                Patient ID
+                Patient ID *
               </label>
               <input
                 type="text"
@@ -113,6 +130,7 @@ export default function PaymentNew() {
                 onChange={onChange}
                 className="form-input"
                 placeholder="Enter patient ID"
+                required={!form.patientName}
               />
             </div>
 
@@ -151,7 +169,8 @@ export default function PaymentNew() {
                 value={form.appointmentId}
                 onChange={onChange}
                 className="form-input"
-                placeholder="Related appointment ID"
+                placeholder="Enter appointment ID"
+                required
               />
             </div>
 
@@ -171,7 +190,7 @@ export default function PaymentNew() {
                 className="form-input"
                 placeholder="0.00"
                 step="0.01"
-                min="0"
+                min="0.01"
                 required
               />
             </div>
@@ -182,13 +201,14 @@ export default function PaymentNew() {
                   <rect x="1" y="4" width="22" height="16" rx="2" ry="2"/>
                   <line x1="1" y1="10" x2="23" y2="10"/>
                 </svg>
-                Payment Method
+                Payment Method *
               </label>
               <select
                 name="method"
                 value={form.method}
                 onChange={onChange}
                 className="form-input"
+                required
               >
                 {METHODS.map((method) => (
                   <option key={method} value={method}>
@@ -203,13 +223,14 @@ export default function PaymentNew() {
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <polyline points="22,12 18,12 15,21 9,3 6,12 2,12"/>
                 </svg>
-                Status
+                Status *
               </label>
               <select
                 name="status"
                 value={form.status}
                 onChange={onChange}
                 className="form-input"
+                required
               >
                 {STATUSES.map((status) => (
                   <option key={status} value={status}>
@@ -218,26 +239,6 @@ export default function PaymentNew() {
                 ))}
               </select>
             </div>
-          </div>
-
-          <div className="form-group full-width">
-            <label className="form-label">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-                <polyline points="14,2 14,8 20,8"/>
-                <line x1="16" y1="13" x2="8" y2="13"/>
-                <line x1="16" y1="17" x2="8" y2="17"/>
-              </svg>
-              Notes
-            </label>
-            <textarea
-              name="notes"
-              value={form.notes}
-              onChange={onChange}
-              className="form-textarea"
-              rows={4}
-              placeholder="Additional notes about this payment..."
-            />
           </div>
 
           <div className="form-actions">

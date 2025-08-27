@@ -1,0 +1,425 @@
+/* src/pages/PaymentReceipt.css */
+
+:root {
+  --medical-primary: #0066cc;
+  --medical-secondary: #00a859;
+  --medical-accent: #e8f4f8;
+  --medical-trust: #003d82;
+  --medical-calm: #f0f8ff;
+  --medical-white: #ffffff;
+  --medical-light-blue: #e1f2ff;
+  --medical-soft-green: #f0f9f4;
+  --medical-warm-gray: #f8f9fa;
+  --medical-text-primary: #2c3e50;
+  --medical-text-secondary: #5a6c7d;
+  --medical-text-muted: #8b9dc3;
+  --medical-border: #e3ebf0;
+  --medical-shadow-soft: 0 2px 16px rgba(0, 102, 204, 0.08);
+  --medical-shadow-elevated: 0 8px 32px rgba(0, 102, 204, 0.12);
+  --medical-gradient: linear-gradient(135deg, var(--medical-calm) 0%, var(--medical-light-blue) 50%, var(--medical-white) 100%);
+}
+
+.receipt-container {
+  min-height: 100vh;
+  background: var(--medical-gradient);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  padding: 2rem;
+}
+
+/* Loading and Error States */
+.loading-state, .error-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+  text-align: center;
+  padding: 2rem;
+}
+
+.loading-spinner svg {
+  color: var(--medical-primary);
+  animation: spin 1s linear infinite;
+}
+
+.error-icon svg {
+  color: #dc2626;
+}
+
+.back-btn {
+  padding: 0.75rem 1.5rem;
+  background: var(--medical-primary);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.back-btn:hover {
+  background: var(--medical-trust);
+  transform: translateY(-2px);
+}
+
+/* Receipt Controls */
+.receipt-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  max-width: 800px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.receipt-controls .back-btn,
+.print-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.875rem 1.25rem;
+  border-radius: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 0.9rem;
+  text-decoration: none;
+}
+
+.receipt-controls .back-btn {
+  background: var(--medical-warm-gray);
+  color: var(--medical-text-primary);
+  border: 2px solid var(--medical-border);
+}
+
+.receipt-controls .back-btn:hover {
+  background: var(--medical-white);
+  color: var(--medical-primary);
+  border-color: var(--medical-primary);
+  transform: translateY(-2px);
+  box-shadow: var(--medical-shadow-soft);
+}
+
+.print-btn {
+  background: linear-gradient(135deg, var(--medical-primary), var(--medical-trust));
+  color: white;
+  border: none;
+  box-shadow: var(--medical-shadow-soft);
+}
+
+.print-btn:hover {
+  background: linear-gradient(135deg, var(--medical-trust), #002a5c);
+  transform: translateY(-2px);
+  box-shadow: var(--medical-shadow-elevated);
+}
+
+/* Receipt Content */
+.receipt-content {
+  max-width: 800px;
+  margin: 0 auto;
+  background: white;
+  box-shadow: var(--medical-shadow-elevated);
+  border-radius: 16px;
+  overflow: hidden;
+  border: 1px solid var(--medical-border);
+}
+
+/* Clinic Header */
+.clinic-header {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  padding: 2rem;
+  background: var(--medical-primary);
+  color: white;
+}
+
+.clinic-logo {
+  width: 64px;
+  height: 64px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.clinic-info h1 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin: 0 0 0.5rem 0;
+  color: white;
+}
+
+.clinic-info p {
+  margin: 0.25rem 0;
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+/* Receipt Title */
+.receipt-title {
+  text-align: center;
+  padding: 2rem 2rem 1rem;
+  border-bottom: 2px solid var(--medical-border);
+}
+
+.receipt-title h2 {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--medical-text-primary);
+  margin: 0 0 0.5rem 0;
+}
+
+.receipt-number {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--medical-text-secondary);
+  background: var(--medical-warm-gray);
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  display: inline-block;
+}
+
+/* Receipt Details */
+.receipt-details {
+  padding: 2rem;
+}
+
+.detail-section {
+  margin-bottom: 2rem;
+}
+
+.detail-section:last-child {
+  margin-bottom: 0;
+}
+
+.detail-section h3 {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--medical-text-primary);
+  margin: 0 0 1rem 0;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--medical-border);
+}
+
+.detail-grid {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.detail-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 0;
+}
+
+.detail-row .label {
+  font-weight: 600;
+  color: var(--medical-text-secondary);
+  font-size: 0.9rem;
+}
+
+.detail-row .value {
+  font-weight: 500;
+  color: var(--medical-text-primary);
+  font-size: 0.9rem;
+  text-align: right;
+}
+
+.value.status-received {
+  color: var(--medical-secondary);
+  font-weight: 700;
+}
+
+.value.status-pending {
+  color: #d97706;
+  font-weight: 700;
+}
+
+.value.status-refunded {
+  color: #dc2626;
+  font-weight: 700;
+}
+
+.notes-content {
+  background: var(--medical-warm-gray);
+  padding: 1rem;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  color: var(--medical-text-primary);
+  line-height: 1.5;
+  border-left: 4px solid var(--medical-primary);
+}
+
+/* Amount Summary */
+.amount-summary {
+  background: var(--medical-warm-gray);
+  margin: 2rem;
+  padding: 1.5rem;
+  border-radius: 12px;
+  border: 2px solid var(--medical-border);
+}
+
+.amount-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 0;
+}
+
+.amount-row.subtotal {
+  font-size: 0.95rem;
+  color: var(--medical-text-secondary);
+}
+
+.amount-row.total {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--medical-text-primary);
+  padding-top: 1rem;
+  border-top: 2px solid var(--medical-border);
+  margin-top: 0.5rem;
+}
+
+.amount-row .value {
+  font-weight: inherit;
+}
+
+/* Receipt Footer */
+.receipt-footer {
+  padding: 2rem;
+  background: var(--medical-warm-gray);
+  text-align: center;
+  border-top: 2px solid var(--medical-border);
+}
+
+.thank-you h4 {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--medical-text-primary);
+  margin: 0 0 0.5rem 0;
+}
+
+.thank-you p {
+  font-size: 0.9rem;
+  color: var(--medical-text-secondary);
+  margin: 0 0 1.5rem 0;
+}
+
+.footer-info p {
+  font-size: 0.8rem;
+  color: var(--medical-text-muted);
+  margin: 0;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Print Styles */
+@media print {
+  .no-print {
+    display: none !important;
+  }
+  
+  .receipt-container {
+    background: white;
+    padding: 0;
+    margin: 0;
+  }
+  
+  .receipt-content {
+    box-shadow: none;
+    border: none;
+    border-radius: 0;
+    max-width: none;
+  }
+  
+  .clinic-header {
+    background: #0066cc !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  
+  .amount-summary {
+    background: #f8f9fa !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  
+  .receipt-footer {
+    background: #f8f9fa !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .receipt-container {
+    padding: 1rem;
+  }
+  
+  .receipt-controls {
+    flex-direction: column;
+    gap: 1rem;
+  }
+  
+  .receipt-controls .back-btn,
+  .print-btn {
+    width: 100%;
+    justify-content: center;
+  }
+  
+  .clinic-header {
+    flex-direction: column;
+    text-align: center;
+    gap: 1rem;
+  }
+  
+  .clinic-info h1 {
+    font-size: 1.375rem;
+  }
+  
+  .receipt-details {
+    padding: 1.5rem;
+  }
+  
+  .amount-summary {
+    margin: 1.5rem;
+  }
+  
+  .receipt-footer {
+    padding: 1.5rem;
+  }
+  
+  .detail-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.25rem;
+  }
+  
+  .detail-row .value {
+    text-align: left;
+  }
+}
+
+@media (max-width: 480px) {
+  .receipt-details {
+    padding: 1rem;
+  }
+  
+  .amount-summary {
+    margin: 1rem;
+    padding: 1rem;
+  }
+  
+  .receipt-footer {
+    padding: 1rem;
+  }
+}

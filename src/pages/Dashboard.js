@@ -1,18 +1,25 @@
 // src/pages/Dashboard.js
 import React from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import { Link } from "react-router-dom";
-import "./Dashboard.css"; // Import the CSS file
+import "./Dashboard.css";
 
 export default function Dashboard() {
   const { currentUser, logout } = useAuth();
+  const navigate = useNavigate();
 
   async function handleLogout() {
     try {
       await logout();
-    } catch (e) {
-      console.error("Logout failed", e);
+      navigate("/login");
+    } catch (error) {
+      console.error("Failed to logout:", error);
     }
+  }
+
+  function getInitials(email) {
+    if (!email) return "U";
+    return email.charAt(0).toUpperCase();
   }
 
   return (
@@ -21,26 +28,41 @@ export default function Dashboard() {
       <header className="dashboard-header">
         <div className="header-content">
           <div className="brand-section">
-            <div className="brand-icon">
-              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.29 1.51 4.04 3 5.5l7 7z"/>
-              </svg>
+            <div className="doctor-photo">
+              <img src="/1517622887538.jpg" alt="Dr. Bharat Chougule" />
             </div>
-            <h1 className="brand-title">MediPortal</h1>
+            <div className="doctor-details">
+              <h1 className="doctor-name">Dr. Bharat Chougule</h1>
+              <div className="clinic-info">
+                <span className="clinic-location">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+                    <circle cx="12" cy="10" r="3"/>
+                  </svg>
+                  Hindalaga Clinic
+                </span>
+                <span className="doctor-contact">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
+                  </svg>
+                  +91 99026 86173
+                </span>
+              </div>
+            </div>
           </div>
-          
+
           <div className="user-section">
             <div className="user-info">
               <div className="user-avatar">
-                {currentUser?.email?.charAt(0).toUpperCase() || 'U'}
+                {getInitials(currentUser?.email)}
               </div>
               <div className="user-details">
-                <span className="user-email">{currentUser?.email}</span>
-                <span className="user-role">Healthcare Professional</span>
+                <div className="user-email">{currentUser?.email}</div>
+                <div className="user-role">Healthcare Professional</div>
               </div>
             </div>
             <button onClick={handleLogout} className="logout-btn">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
                 <polyline points="16,17 21,12 16,7"/>
                 <line x1="21" y1="12" x2="9" y2="12"/>
@@ -51,11 +73,12 @@ export default function Dashboard() {
         </div>
       </header>
 
-      {/* Main Content */}
       <main className="dashboard-main">
-        {/* Navigation Cards */}
+        
+
+        {/* Navigation Section */}
         <section className="nav-section">
-          <h2 className="section-title">Management Portal</h2>
+          <h2 className="section-title">Practice Management</h2>
           <div className="nav-grid">
             <Link to="/patients" className="nav-card patients-nav">
               <div className="nav-icon">
@@ -101,14 +124,12 @@ export default function Dashboard() {
               <div className="nav-arrow">→</div>
             </Link>
 
-            {/* <Link to="/reports" className="nav-card reports-nav">
+            <Link to="/reports" className="nav-card reports-nav">
               <div className="nav-icon">
                 <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-                  <polyline points="14,2 14,8 20,8"/>
-                  <line x1="16" y1="13" x2="8" y2="13"/>
-                  <line x1="16" y1="17" x2="8" y2="17"/>
-                  <polyline points="10,9 9,9 8,9"/>
+                  <line x1="18" y1="20" x2="18" y2="10"/>
+                  <line x1="12" y1="20" x2="12" y2="4"/>
+                  <line x1="6" y1="20" x2="6" y2="14"/>
                 </svg>
               </div>
               <div className="nav-content">
@@ -116,7 +137,7 @@ export default function Dashboard() {
                 <p>Generate reports and view practice analytics</p>
               </div>
               <div className="nav-arrow">→</div>
-            </Link> */}
+            </Link>
           </div>
         </section>
 
@@ -124,27 +145,36 @@ export default function Dashboard() {
         <section className="welcome-section">
           <div className="welcome-card">
             <h2>Welcome to Your Medical Dashboard</h2>
-            <p>Streamline your healthcare practice with our comprehensive management system. 
-               Access patient records, manage appointments, track payments, and generate insightful reports 
-               all from one centralized platform designed specifically for healthcare professionals.</p>
+            <p>
+              Streamline your healthcare practice with our comprehensive management system. 
+              Access patient records, manage appointments, track payments, and generate 
+              insightful reports all from one centralized platform designed specifically 
+              for healthcare professionals.
+            </p>
             <div className="welcome-features">
               <div className="feature">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <polyline points="20,6 9,17 4,12"/>
                 </svg>
-                <span>HIPAA Compliant</span>
+                Patient Management
               </div>
               <div className="feature">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <polyline points="20,6 9,17 4,12"/>
                 </svg>
-                <span>Real-time Updates</span>
+                Appointment Scheduling
               </div>
               <div className="feature">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <polyline points="20,6 9,17 4,12"/>
                 </svg>
-                <span>Secure Data Storage</span>
+                Payment Tracking
+              </div>
+              <div className="feature">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <polyline points="20,6 9,17 4,12"/>
+                </svg>
+                Report Generation
               </div>
             </div>
           </div>
