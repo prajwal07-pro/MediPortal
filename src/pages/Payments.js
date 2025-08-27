@@ -7,6 +7,7 @@ import "./Payments.css";
 export default function Payments() {
   const location = useLocation();
   const navigate = useNavigate();
+
   const patientIdFromUrl = useMemo(
     () => new URLSearchParams(location.search).get("patientId"),
     [location.search]
@@ -31,10 +32,13 @@ export default function Payments() {
 
   useEffect(() => {
     load();
-  }, [patientId]); // Fixed: proper dependency array
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [patientId]);
 
   function goNew() {
-    const qs = patientId ? `?patientId=${encodeURIComponent(patientId)}` : "";
+    const qs = patientId
+      ? `?patientId=${encodeURIComponent(patientId)}`
+      : "";
     navigate(`/payments/new${qs}`);
   }
 
@@ -59,43 +63,178 @@ export default function Payments() {
 
   return (
     <div className="page">
-      {/* Back Navigation */}
       <div className="back-navigation">
-        <button onClick={() => navigate("/")} className="back-btn-dashboard">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <path d="M19 12H5"/>
-            <polyline points="12,19 5,12 12,5"/>
+        <button
+          className="back-btn-dashboard"
+          onClick={() => navigate("/dashboard")}
+        >
+          <svg
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <path d="m15 18-6-6 6-6" />
           </svg>
-          <span>Back to Dashboard</span>
+          Back to Dashboard
         </button>
       </div>
 
-      {/* Header Section */}
-      <header className="header">
-        <h2 className="title">Payments</h2>
+      <div className="header">
+        <h1 className="title">Payments</h1>
         <div>
           <input
+            type="text"
+            className="input"
             placeholder="Filter by Patient ID (optional)"
             value={patientId}
             onChange={(e) => setPatientId(e.target.value)}
-            className="input"
           />
           <button className="primaryBtn" onClick={goNew}>
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <line x1="12" y1="5" x2="12" y2="19"/>
-              <line x1="5" y1="12" x2="19" y2="12"/>
+            <svg
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="M5 12h14" />
+              <path d="m12 5 7 7-7 7" />
             </svg>
             New Payment
           </button>
         </div>
-      </header>
+      </div>
 
-      {/* Main Content Card */}
-      <section className="card">
-        <div>
-          {loading ? "Loading..." : `${items.length} payments`}
+      <div className="card">
+        <div>{items.length} payments</div>
+
+        {/* Mobile View */}
+        <div className="mobile-view">
+          {loading ? (
+            <div className="empty-state">Loading payments...</div>
+          ) : items.length === 0 ? (
+            <div className="empty-state">
+              <div>No payments found</div>
+              <button className="create-btn" onClick={goNew}>
+                Create First Payment
+              </button>
+            </div>
+          ) : (
+            items.map((p) => (
+              <div key={p.id} className="mobile-card">
+                <div className="card-header">
+                  <div className="payment-info">
+                    <div className="amount">
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <rect x="1" y="4" width="22" height="16" rx="2" ry="2"/>
+                        <line x1="1" y1="10" x2="23" y2="10"/>
+                      </svg>
+                      ₹{Number(p.amount || 0).toFixed(2)}
+                    </div>
+                    <div className={`statusPill ${getStatusClass(p.status)}`}>
+                      {p.status || "received"}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="payment-details">
+                  <div className="detail-row">
+                    <div className="label">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                        <line x1="16" y1="2" x2="16" y2="6"/>
+                        <line x1="8" y1="2" x2="8" y2="6"/>
+                        <line x1="3" y1="10" x2="21" y2="10"/>
+                      </svg>
+                      Date
+                    </div>
+                    <div className="value">
+                      {p.createdAt?.toDate
+                        ? p.createdAt.toDate().toLocaleDateString()
+                        : "Not available"}
+                      <br />
+                      {p.createdAt?.toDate
+                        ? p.createdAt.toDate().toLocaleTimeString()
+                        : ""}
+                    </div>
+                  </div>
+
+                  <div className="detail-row">
+                    <div className="label">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                        <circle cx="12" cy="7" r="4"/>
+                      </svg>
+                      Patient
+                    </div>
+                    <div className="value">
+                      {p.patientName || p.patientId || "Unknown"}
+                    </div>
+                  </div>
+
+                  <div className="detail-row">
+                    <div className="label">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <rect x="1" y="4" width="22" height="16" rx="2" ry="2"/>
+                        <line x1="1" y1="10" x2="23" y2="10"/>
+                      </svg>
+                      Method
+                    </div>
+                    <div className="value">
+                      {p.method?.toUpperCase() || "CASH"}
+                    </div>
+                  </div>
+
+                  {p.notes && (
+                    <div className="detail-row">
+                      <div className="label">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                          <polyline points="14,2 14,8 20,8"/>
+                          <line x1="16" y1="13" x2="8" y2="13"/>
+                          <line x1="16" y1="17" x2="8" y2="17"/>
+                        </svg>
+                        Notes
+                      </div>
+                      <div className="value">{p.notes}</div>
+                    </div>
+                  )}
+                </div>
+
+                <div className="card-actions">
+                  <button
+                    className="action-btn view"
+                    onClick={() => navigate(`/payments/${p.id}`)}
+                  >
+                    View Details
+                  </button>
+                  <button
+                    className="action-btn edit"
+                    onClick={() => navigate(`/payments/${p.id}/edit`)}
+                  >
+                    Edit
+                  </button>
+                  <button
+                    className="action-btn delete"
+                    onClick={() => onDelete(p.id)}
+                  >
+                    Delete
+                  </button>
+                </div>
+              </div>
+            ))
+          )}
         </div>
-        
+
+        {/* Desktop Table View */}
         <div className="table-wrapper">
           <table>
             <thead>
@@ -110,110 +249,75 @@ export default function Payments() {
               </tr>
             </thead>
             <tbody>
-              {!loading && items.length === 0 && (
+              {loading ? (
                 <tr>
-                  <td colSpan="7" className="td">
+                  <td className="td" colSpan="7">
+                    Loading payments...
+                  </td>
+                </tr>
+              ) : items.length === 0 ? (
+                <tr>
+                  <td className="td" colSpan="7">
                     No payments found
-                    <button onClick={goNew} className="pillBtn" style={{ marginLeft: "0.75rem" }}>
-                      Record one
+                    <button
+                      className="create-btn"
+                      onClick={goNew}
+                      style={{ marginLeft: "1rem" }}
+                    >
+                      Create First Payment
                     </button>
                   </td>
                 </tr>
-              )}
-              {items.map((p) => (
-                <tr key={p.id}>
-                  <td className="td">
-                    <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
-                        <line x1="16" y1="2" x2="16" y2="6"/>
-                        <line x1="8" y1="2" x2="8" y2="6"/>
-                        <line x1="3" y1="10" x2="21" y2="10"/>
-                      </svg>
-                      <div style={{ display: "flex", flexDirection: "column", gap: "0.125rem" }}>
-                        <span>{p.createdAt?.toDate ? p.createdAt.toDate().toLocaleDateString() : "-"}</span>
-                        <span style={{ fontSize: "0.75rem", color: "var(--medical-text-muted)" }}>
-                          {p.createdAt?.toDate ? p.createdAt.toDate().toLocaleTimeString() : ""}
-                        </span>
-                      </div>
-                    </div>
-                  </td>
-                  <td className="td">
-                    <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-                        <circle cx="12" cy="7" r="4"/>
-                      </svg>
+              ) : (
+                items.map((p) => (
+                  <tr key={p.id}>
+                    <td className="td">
+                      {p.createdAt?.toDate
+                        ? p.createdAt.toDate().toLocaleDateString()
+                        : "-"}
+                      <br />
+                      {p.createdAt?.toDate
+                        ? p.createdAt.toDate().toLocaleTimeString()
+                        : ""}
+                    </td>
+                    <td className="td">
                       {p.patientName || p.patientId || "-"}
-                    </div>
-                  </td>
-                  <td className="td">
-                    <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", fontWeight: "700" }}>
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                        <line x1="12" y1="1" x2="12" y2="23"/>
-                        <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
-                      </svg>
-                      ₹ {Number(p.amount || 0).toFixed(2)}
-                    </div>
-                  </td>
-                  <td className="td">
-                    <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                        <rect x="1" y="4" width="22" height="16" rx="2" ry="2"/>
-                        <line x1="1" y1="10" x2="23" y2="10"/>
-                      </svg>
-                      {p.method?.toUpperCase() || "-"}
-                    </div>
-                  </td>
-                  <td className="td">
-                    <span className={`statusPill ${getStatusClass(p.status || "received")}`}>
-                      {p.status || "received"}
-                    </span>
-                  </td>
-                  <td className="td">
-                    <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-                        <polyline points="14,2 14,8 20,8"/>
-                        <line x1="16" y1="13" x2="8" y2="13"/>
-                        <line x1="16" y1="17" x2="8" y2="17"/>
-                      </svg>
-                      <span style={{ maxWidth: "150px", overflow: "hidden", textOverflow: "ellipsis" }}>
-                        {p.notes || "-"}
+                    </td>
+                    <td className="td">₹ {Number(p.amount || 0).toFixed(2)}</td>
+                    <td className="td">{p.method?.toUpperCase() || "-"}</td>
+                    <td className="td">
+                      <span className={`statusPill ${getStatusClass(p.status)}`}>
+                        {p.status || "received"}
                       </span>
-                    </div>
-                  </td>
-                  <td className="td" style={{ display: "flex", gap: "0.75rem", flexWrap: "wrap", alignItems: "center" }}>
-                    <button onClick={() => navigate(`/payments/${p.id}`)} className="pillBtn">
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
-                        <circle cx="12" cy="12" r="3"/>
-                      </svg>
-                      View
-                    </button>
-                    <button onClick={() => navigate(`/payments/${p.id}/edit`)} className="pillBtn">
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
-                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
-                      </svg>
-                      Edit
-                    </button>
-                    <button onClick={() => onDelete(p.id)} className="pillBtnDanger">
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                        <polyline points="3,6 5,6 21,6"/>
-                        <path d="M19,6v14a2,2,0,0,1-2,2H7a2,2,0,0,1-2-2V6m3,0V4a2,2,0,0,1,2-2h4a2,2,0,0,1,2,2V6"/>
-                        <line x1="10" y1="11" x2="10" y2="17"/>
-                        <line x1="14" y1="11" x2="14" y2="17"/>
-                      </svg>
-                      Delete
-                    </button>
-                  </td>
-                </tr>
-              ))}
+                    </td>
+                    <td className="td">{p.notes || "-"}</td>
+                    <td className="td" style={{ display: "flex", gap: "0.75rem", flexWrap: "wrap", alignItems: "center" }}>
+                      <button
+                        className="pillBtn"
+                        onClick={() => navigate(`/payments/${p.id}`)}
+                      >
+                        View
+                      </button>
+                      <button
+                        className="pillBtn"
+                        onClick={() => navigate(`/payments/${p.id}/edit`)}
+                      >
+                        Edit
+                      </button>
+                      <button
+                        className="pillBtnDanger"
+                        onClick={() => onDelete(p.id)}
+                      >
+                        Delete
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>
-      </section>
+      </div>
     </div>
   );
 }
